@@ -1,0 +1,13 @@
+# LLM
+mistralai
+
+#stt tts
+fastrtc
+fastrtc[vad, stt]
+coqui-tts
+
+#system
+fastapi
+python-dotenv
+uvicorn
+
