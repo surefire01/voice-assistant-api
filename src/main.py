@@ -2,13 +2,12 @@
 import re
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from fastrtc import AlgoOptions,  ReplyOnPause, Stream, get_silero_model, SileroVadOptions, get_stt_model
-from fastrtc.utils import CloseStream
+from fastrtc import AlgoOptions,  ReplyOnPause, Stream, UIArgs, get_silero_model, SileroVadOptions, get_stt_model
 import os
 import gradio as gr
 from dotenv import load_dotenv
-from coqui_tts import get_tts_model, CoquiTTSOptions
-from mistarlai import MistrialAI
+from src.coqui_tts import CoquiTTSOptions, get_tts_model
+from src.mistarlai import MistrialAI
 
 # load environment variables
 load_dotenv()
@@ -19,6 +18,7 @@ app = FastAPI()
 # Load models
 stt_model = get_stt_model()
 tts_model = get_tts_model()
+tts_options=CoquiTTSOptions(speaker="p225")
 vad_model = get_silero_model()
 llm_client = MistrialAI(api_key=os.getenv("MISTRALAI"))
 
@@ -41,12 +41,12 @@ def audioHanlder(audio):
         assistant_reply  = llm_client.chat(prompt)
         print(f"Assistant: {assistant_reply}")
     
-        for chunk in tts_model.stream_tts_sync(assistant_reply) :
+        for chunk in tts_model.stream_tts_sync(assistant_reply,options=tts_options) :
             yield chunk
 
 
 def onstart():
-    for chunk in tts_model.stream_tts_sync("Hello! how can I help you today?") :
+    for chunk in tts_model.stream_tts_sync("Hello! How Can I help you?", option=tts_options) :
                 yield chunk
 
 # audio stream    
@@ -67,10 +67,16 @@ stream = Stream(
                 window_size_samples=1024,      # stable default for 16kHz
                 speech_pad_ms=200              # tight pad, low latency (can go lower)
         ),
-        model=vad_model
+        model=vad_model,
+        can_interrupt=False
     ),
     modality="audio",
     mode="send-receive",
+
+    ui_args=UIArgs(
+         title="Voice Assistant Api",
+         icon_radius=30
+    ) 
 )
    
 # root
@@ -79,3 +85,5 @@ def read_root():
     return JSONResponse(content={"message": "Hello, FastAPI is working!"})
 
 app = gr.mount_gradio_app(app, stream.ui, path="/ui")
+
+
