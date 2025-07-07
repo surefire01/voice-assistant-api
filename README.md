@@ -10,7 +10,9 @@ A simplified, general-purpose voice assistant backend you can use as a starting 
 This project lets you **ask questions in voice** and get **AI-generated audio replies**, demonstrating streaming audio processing, speech-to-text, LLM-powered responses, and text-to-speech output.
 
 ## 🎥 Demo
-<video controls src="demo.mp4" title="Demo"></video>
+https://github.com/user-attachments/assets/e0f5de26-a5b6-4b7a-b29f-060ba0a7f029
+
+
 
 
 ---
